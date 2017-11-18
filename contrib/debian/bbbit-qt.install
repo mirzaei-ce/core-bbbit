@@ -1,0 +1,6 @@
+usr/local/bin/bbbit-qt usr/bin
+share/pixmaps/bbbit32.xpm usr/share/pixmaps
+share/pixmaps/bbbit16.xpm usr/share/pixmaps
+share/pixmaps/bbbit128.png usr/share/pixmaps
+debian/bbbit-qt.desktop usr/share/applications
+debian/bbbit-qt.protocol usr/share/kde4/services/

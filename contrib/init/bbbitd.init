@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  bbbitd The bbbit core server.
+#
+#
+# chkconfig: 345 80 20
+# description: bbbitd
+# processname: bbbitd
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/bbbitd, see below
+if [ -f /etc/sysconfig/bbbitd ]; then
+        . /etc/sysconfig/bbbitd
+fi
+
+RETVAL=0
+
+prog=bbbitd
+# you can override the lockfile via BBBITD_LOCKFILE in /etc/sysconfig/bbbitd
+lockfile=${BBBITD_LOCKFILE-/var/lock/subsys/bbbitd}
+
+# bbbitd defaults to /usr/bin/bbbitd, override with BBBITD_BIN
+bbbitd=${BBBITD_BIN-/usr/bin/bbbitd}
+
+# bbbitd opts default to -disablewallet, override with BBBITD_OPTS
+bbbitd_opts=${BBBITD_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $bbbitd $bbbitd_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac

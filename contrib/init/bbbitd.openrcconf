@@ -1,0 +1,33 @@
+# /etc/conf.d/bbbitd: config file for /etc/init.d/bbbitd
+
+# Config file location
+#BBBITD_CONFIGFILE="/etc/bbbit/bbbit.conf"
+
+# What directory to write pidfile to?  (created and owned by $BBBITD_USER)
+#BBBITD_PIDDIR="/var/run/bbbitd"
+
+# What filename to give the pidfile
+#BBBITD_PIDFILE="${BBBITD_PIDDIR}/bbbitd.pid"
+
+# Where to write bbbitd data (be mindful that the blockchain is large)
+#BBBITD_DATADIR="/var/lib/bbbitd"
+
+# User and group to own bbbitd process
+#BBBITD_USER="bbbit"
+#BBBITD_GROUP="bbbit"
+
+# Path to bbbitd executable
+#BBBITD_BIN="/usr/bin/bbbitd"
+
+# Nice value to run bbbitd under
+#BBBITD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+BBBITD_OPTS="-disablewallet"
+
+# The timeout in seconds OpenRC will wait for bbbitd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+BBBITD_SIGTERM_TIMEOUT=60

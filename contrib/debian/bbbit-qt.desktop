@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Bbbit
+Comment=Bbbit P2P Cryptocurrency
+Comment[fr]=Bbbit, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Bbbit, eşten eşe kriptografik sanal para birimi
+Exec=bbbit-qt %u
+Terminal=false
+Type=Application
+Icon=bbbit128
+MimeType=x-scheme-handler/bbbit;
+Categories=Office;Finance;

@@ -1,0 +1,22 @@
+[Unit]
+Description=Bbbit's distributed currency daemon
+After=network.target
+
+[Service]
+User=bbbit
+Group=bbbit
+
+Type=forking
+PIDFile=/var/lib/bbbitd/bbbitd.pid
+ExecStart=/usr/bin/bbbitd -daemon -pid=/var/lib/bbbitd/bbbitd.pid \
+-conf=/etc/bbbit/bbbit.conf -datadir=/var/lib/bbbitd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

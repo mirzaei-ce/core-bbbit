@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/bbbit/.bbbit" ]; then
+	BBBITD_DEFAULT_DATADIR="/var/lib/bbbit/.bbbit"
+else
+	BBBITD_DEFAULT_DATADIR="/var/lib/bbbitd"
+fi
+
+BBBITD_CONFIGFILE=${BBBITD_CONFIGFILE:-/etc/bbbit/bbbit.conf}
+BBBITD_PIDDIR=${BBBITD_PIDDIR:-/var/run/bbbitd}
+BBBITD_PIDFILE=${BBBITD_PIDFILE:-${BBBITD_PIDDIR}/bbbitd.pid}
+BBBITD_DATADIR=${BBBITD_DATADIR:-${BBBITD_DEFAULT_DATADIR}}
+BBBITD_USER=${BBBITD_USER:-${BBBIT_USER:-bbbit}}
+BBBITD_GROUP=${BBBITD_GROUP:-bbbit}
+BBBITD_BIN=${BBBITD_BIN:-/usr/bin/bbbitd}
+BBBITD_NICE=${BBBITD_NICE:-${NICELEVEL:-0}}
+BBBITD_OPTS="${BBBITD_OPTS:-${BBBIT_OPTS}}"
+
+name="Bbbit Core Daemon"
+description="Bbbit cryptocurrency P2P network daemon"
+
+command="/usr/bin/bbbitd"
+command_args="-pid=\"${BBBITD_PIDFILE}\" \
+		-conf=\"${BBBITD_CONFIGFILE}\" \
+		-datadir=\"${BBBITD_DATADIR}\" \
+		-daemon \
+		${BBBITD_OPTS}"
+
+required_files="${BBBITD_CONFIGFILE}"
+start_stop_daemon_args="-u ${BBBITD_USER} \
+			-N ${BBBITD_NICE} -w 2000"
+pidfile="${BBBITD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BBBITD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BBBITD_USER}:${BBBITD_GROUP}" \
+	"${BBBITD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BBBITD_USER}:${BBBITD_GROUP}" \
+	"${BBBITD_PIDDIR}"
+
+	checkpath -f \
+	-o ${BBBITD_USER}:${BBBITD_GROUP} \
+	-m 0660 \
+	${BBBITD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BBBITD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run bbbitd."
+		eerror "The setting must appear in ${BBBITD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Bbbit Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}
